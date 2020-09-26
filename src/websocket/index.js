@@ -9,6 +9,7 @@ const websocket = {
     debug('Initialized');
 
     WebSocketStore.registerClients(() => Array.from(wss.clients.values()));
+    // TODO: Pinger
 
     wss.on('connection', (ws) => {
       WebSocketEvents.onSocketConnect(ws);
@@ -17,6 +18,8 @@ const websocket = {
       ws.on('close', () => WebSocketEvents.onSocketClose(ws));
       ws.on('error', (error) => WebSocketEvents.onSocketError(ws, error));
     });
+
+    return wss;
   },
 };
 
