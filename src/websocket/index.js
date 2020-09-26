@@ -1,26 +1,23 @@
+const debug = require('debug')('app:server:websockets');
 const WebSocketServer = require('ws').Server;
+const WebSocketEvents = require('./events');
+const WebSocketStore = require('./store');
 
-class WebSocket {
-  constructor() {
-    this.wss = null;
-  }
+const websocket = {
+  createServer: (httpServer) => {
+    const wss = new WebSocketServer({ server: httpServer });
+    debug('Initialized');
 
-  createServer(httpServer) {
-    this.wss = new WebSocketServer({ server: httpServer });
-    this.wss.on('connection', WebSocket.onConnection);
-  }
+    WebSocketStore.registerClients(() => Array.from(wss.clients.values()));
 
-  static onConnection(ws) {
-    ws.on('message', (message) => WebSocket.onMessage(ws, message));
-    ws.send('New connection was established!');
-  }
+    wss.on('connection', (ws) => {
+      WebSocketEvents.onSocketConnect(ws);
 
-  static onMessage(ws, message) {
-    console.log(`Received: ${message}`);
-    ws.send('Got it!');
-  }
-}
-
-const websocket = new WebSocket();
+      ws.on('message', (message) => WebSocketEvents.onSocketMessage(ws, message));
+      ws.on('close', () => WebSocketEvents.onSocketClose(ws));
+      ws.on('error', (error) => WebSocketEvents.onSocketError(ws, error));
+    });
+  },
+};
 
 module.exports = websocket;
