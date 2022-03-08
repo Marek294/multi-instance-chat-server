@@ -67,6 +67,7 @@ exports.notFound = (req, res, next) => {
  * Error handler
  * @public
  */
-exports.handler = (err, req, res) => {
+// eslint-disable-next-line no-unused-vars
+exports.handler = (err, req, res, next) => {
   res.sendFormatError(err.message, err.status, err.code, err.data);
 };
