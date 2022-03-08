@@ -1,4 +1,4 @@
-const debug = require('debug')('app:server:websockets:event');
+const debug = require('debug')('server:websocket:event');
 const WebSocketHandlers = require('../handlers');
 
 const eventHandlers = {

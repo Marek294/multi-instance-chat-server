@@ -1,4 +1,4 @@
-const debug = require('debug')('app:server:websockets');
+const debug = require('debug')('server:websocket');
 const WebSocketServer = require('ws').Server;
 const WebSocketEvents = require('./events');
 const WebSocketStore = require('./store');
