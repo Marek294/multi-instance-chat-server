@@ -6,7 +6,6 @@ const http = require('http');
 const debug = require('debug')('server:server');
 const config = require('../config/vars');
 const loadApp = require('../loaders');
-// const websocket = require('../websocket');
 
 /**
  * Normalize a port into a number, string, or false.
@@ -26,11 +25,6 @@ function normalizePort(val) {
 
   return false;
 }
-
-/**
- * Create WebSocket server.
- */
-// websocket.createServer(server);
 
 /**
  * Event listener for HTTP server "error" event.
