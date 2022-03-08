@@ -1,2 +1,2 @@
 // Here we import all events
-require('../subscribers/user')
+require('../subscribers/user');
