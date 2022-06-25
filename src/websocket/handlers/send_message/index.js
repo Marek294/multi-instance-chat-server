@@ -1,11 +1,7 @@
-class SendMessageHandler {
-  static get TYPE() {
-    return 'SEND_MESSAGE';
-  }
+const handler = require('./handler');
+const validation = require('./validation');
 
-  static handle(message) {
-    console.log('Hello:', message);
-  }
-}
-
-module.exports = SendMessageHandler;
+module.exports = {
+  handler,
+  validation,
+};
