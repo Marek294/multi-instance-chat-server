@@ -5,17 +5,19 @@ const WebSocketStore = require('./store');
 
 const websocket = {
   createServer: (httpServer) => {
-    const wss = new WebSocketServer({ server: httpServer });
+    // maxPayload: 5 MB
+    const wss = new WebSocketServer({ server: httpServer, maxPayload: 5242880 });
     debug('Initialized');
 
     WebSocketStore.registerClients(() => Array.from(wss.clients.values()));
     // TODO: Pinger
+    // TODO: Rate limit connections (It should be done in ticket based authentication)
 
     wss.on('connection', (ws) => {
       WebSocketEvents.onSocketConnect(ws);
 
       ws.on('message', (message) => WebSocketEvents.onSocketMessage(ws, message));
-      ws.on('close', () => WebSocketEvents.onSocketClose(ws));
+      ws.on('close', (code, reason) => WebSocketEvents.onSocketClose(ws, code, reason));
       ws.on('error', (error) => WebSocketEvents.onSocketError(ws, error));
     });
 

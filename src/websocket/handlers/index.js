@@ -1,8 +1,13 @@
-const WebSocketHandlers = require('./handlers');
-const SendMessageHandler = require('./send_message');
+const WebSocketHandlers = require('../lib/handlers');
+const validator = require('../lib/validator');
+const sendMessage = require('./send_message');
 
-const handlers = new WebSocketHandlers({
-  SEND_MESSAGE: SendMessageHandler,
-});
+// const handlers = {
+//   SEND_MESSAGE: SendMessageHandler,
+// };
+
+const handlers = new WebSocketHandlers();
+
+handlers.add('SEND_MESSAGE', validator(sendMessage.validation), sendMessage.handler);
 
 module.exports = handlers;
