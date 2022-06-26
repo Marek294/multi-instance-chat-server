@@ -2,7 +2,7 @@ const debug = require('debug')('server:websocket:event');
 const WebSocketHandlers = require('../handlers');
 const WebSocketRateLimit = require('../lib/rateLimit');
 // const WebSocketPayloadSize = require('../lib/payloadSize');
-const { SocketError } = require('../lib/errors');
+const { SocketError, errors } = require('../lib/errors');
 
 // Max 20 frames/sec per websocket
 const rateLimit = WebSocketRateLimit({ interval: 1e3, limit: 20 });
@@ -12,8 +12,11 @@ const rateLimit = WebSocketRateLimit({ interval: 1e3, limit: 20 });
 
 const onSocketConnect = (ws) => {
   // Attach send frame
-  ws.sendFrame = (type, payload) => {
+  ws.sendFrame = (type, payload, requestId) => {
     const frame = { type, payload };
+    if (requestId) frame.requestId = requestId;
+
+    // TODO: dont send message if socket is closed
     ws.send(JSON.stringify(frame));
   };
 
@@ -24,12 +27,24 @@ const onSocketClose = (ws, code, reason) => {
   debug('Socket closed', code, reason);
 };
 
-const onSocketError = (ws, error) => {
+const onSocketError = (ws, error, sendError) => {
   if (!error.nolog) console.error(error);
+  if (sendError) {
+    if (error instanceof SocketError) sendError({ code: error.code, message: error.message });
+    else {
+      const internalError = errors.internalError();
+      sendError({ code: internalError.code, message: internalError.message });
+    }
+  }
+
   if (error instanceof SocketError && error.close) ws.close(error.code, error.reason);
 };
 
 const onSocketMessage = async (ws, message) => {
+  let sendSuccess = () => {};
+  let sendError = () => {};
+  let sendProgress = () => {};
+
   try {
     rateLimit(ws);
     // payloadSize(message);
@@ -39,12 +54,23 @@ const onSocketMessage = async (ws, message) => {
 
     if (!frame.type) throw new Error('Incorrect frame format. No "type" field');
     if (!frame.payload) throw new Error('Incorrect frame format. No "payload" field');
+    if (frame.requestId) {
+      sendSuccess = (payload) => ws.sendFrame('request-success', payload, frame.requestId);
+      sendError = (payload) => ws.sendFrame('request-error', payload, frame.requestId);
+      sendProgress = (payload) => ws.sendFrame('request-progress', payload, frame.requestId);
+    }
 
     // Validate payload here ???
 
-    await WebSocketHandlers.handle(frame.type, { ws, payload: frame.payload });
+    const response = await WebSocketHandlers.handle(
+      frame.type,
+      { ws, payload: frame.payload },
+      { sendProgress },
+    );
+
+    if (response) sendSuccess(response);
   } catch (e) {
-    onSocketError(ws, e);
+    onSocketError(ws, e, sendError);
   }
 };
 

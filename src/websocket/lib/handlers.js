@@ -1,3 +1,5 @@
+const errors = require('./errors');
+
 class WebSocketHandlers {
   constructor() {
     this.handlers = {};
@@ -7,11 +9,8 @@ class WebSocketHandlers {
     this.handlers[type] = methods;
   }
 
-  async handle(type, { ws, payload }) {
-    if (!this.handlers[type]) {
-      ws.send('Handler not found');
-      return;
-    }
+  async handle(type, { ws, payload }, { sendProgress } = {}) {
+    if (!this.handlers[type]) throw errors.handlerNotFound();
 
     const methods = this.handlers[type];
     const req = { ws, payload };
@@ -26,9 +25,12 @@ class WebSocketHandlers {
 
     // await run();
 
+    let res;
     for (let i = 0; i < methods.length; i++) {
-      await methods[i](req);
+      res = await methods[i](req, { sendProgress });
     }
+
+    return res;
   }
 }
 
