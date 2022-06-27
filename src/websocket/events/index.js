@@ -47,7 +47,6 @@ const onSocketMessage = async (ws, message) => {
   let sendProgress = () => {};
 
   try {
-    console.log('message');
     rateLimit(ws);
     // payloadSize(message);
     // TODO: payload size validator
