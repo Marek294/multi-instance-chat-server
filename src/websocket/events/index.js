@@ -17,6 +17,7 @@ const onSocketConnect = (ws) => {
     if (requestId) frame.requestId = requestId;
 
     // TODO: dont send message if socket is closed
+    // if (client.readyState === WebSocket.OPEN)
     ws.send(JSON.stringify(frame));
   };
 
@@ -46,6 +47,7 @@ const onSocketMessage = async (ws, message) => {
   let sendProgress = () => {};
 
   try {
+    console.log('message');
     rateLimit(ws);
     // payloadSize(message);
     // TODO: payload size validator
