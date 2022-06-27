@@ -2,6 +2,7 @@ const debug = require('debug')('server:websocket');
 const WebSocketServer = require('ws').Server;
 const WebSocketEvents = require('./events');
 const WebSocketStore = require('./store');
+const heartbeat = require('./lib/heartbeat');
 
 const websocket = {
   createServer: (httpServer) => {
@@ -10,7 +11,7 @@ const websocket = {
     debug('Initialized');
 
     WebSocketStore.registerClients(() => Array.from(wss.clients.values()));
-    // TODO: Pinger
+    heartbeat.start(wss);
     // TODO: Rate limit connections (It should be done in ticket based authentication)
 
     wss.on('connection', (ws) => {
