@@ -6,8 +6,9 @@
     "node": "16.13.0"
   },
   "scripts": {
+    "build": "tsc",
     "start": "node ./src/bin/www",
-    "dev": "NODE_ENV=development node ./src/bin/www"
+    "dev": "NODE_ENV=development ts-node ./src/bin/www"
   },
   "dependencies": {
     "compression": "^1.7.4",
@@ -27,8 +28,12 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.25",
     "eslint": "^7.8.1",
     "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0"
+    "eslint-plugin-import": "^2.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.2"
   }
 }
