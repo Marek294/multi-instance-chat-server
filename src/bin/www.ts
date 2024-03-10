@@ -1,16 +1,17 @@
 #!/usr/bin/env node
-require('dotenv').config();
+import 'dotenv/config'
+import express, { Express } from "express";
+import http, { Server } from "http";
+import Debug from "debug";
+import { SystemError } from "@/types";
+// const loadApp = require('../loaders');
 
-const express = require('express');
-const http = require('http');
-const debug = require('debug')('server:server');
-const config = require('../config/vars');
-const loadApp = require('../loaders');
+const debug = Debug('server:server')
 
 /**
  * Normalize a port into a number, string, or false.
  */
-function normalizePort(val) {
+function normalizePort(val: string): string | number | false {
   const port = parseInt(val, 10);
 
   if (Number.isNaN(port)) {
@@ -30,7 +31,7 @@ function normalizePort(val) {
  * Event listener for HTTP server "error" event.
  */
 
-function onError(error, port) {
+function onError(error: SystemError, port: string | number | false) {
   if (error.syscall !== 'listen') {
     throw error;
   }
@@ -44,11 +45,9 @@ function onError(error, port) {
     case 'EACCES':
       console.error(`${bind} requires elevated privileges`);
       process.exit(1);
-      break;
     case 'EADDRINUSE':
       console.error(`${bind} is already in use`);
       process.exit(1);
-      break;
     default:
       throw error;
   }
@@ -58,37 +57,42 @@ function onError(error, port) {
  * Event listener for HTTP server "listening" event.
  */
 
-function onListening(server) {
+function onListening(server: Server) {
   const addr = server.address();
-  const bind = typeof addr === 'string'
-    ? `pipe ${addr}`
-    : `port ${addr.port}`;
-  debug(`Listening on ${bind}`);
+  if (addr === null) {
+    debug('Listening');
+  } else {
+    const bind = typeof addr === 'string'
+      ? `pipe ${addr}`
+      : `port ${addr.port}`;
+    debug(`Listening on ${bind}`);
+  }
 }
 
 /**
  * Start server.
  */
 const startServer = async () => {
-  const app = express();
-  const port = normalizePort(config.port || '3000');
+  const app: Express = express();
+  // const port = normalizePort(config.port || '3000');
+  const port = normalizePort('3000');
   app.set('port', port);
 
   /**
   * Create HTTP server.
   */
-  const server = http.createServer(app);
+  const server: Server = http.createServer(app);
 
   /**
   * Load application.
   */
-  await loadApp({ app, server });
+  // await loadApp({ app, server });
 
   /**
   * Listen on provided port, on all network interfaces.
   */
   server.listen(port);
-  server.on('error', (error) => onError(error, port));
+  server.on('error', (error: SystemError) => onError(error, port));
   server.on('listening', () => onListening(server));
 };
 
