@@ -3,8 +3,8 @@ import 'dotenv/config'
 import express, { Express } from "express";
 import http, { Server } from "http";
 import Debug from "debug";
-import { SystemError } from "@/types";
-// const loadApp = require('../loaders');
+import { SystemError } from "../types";
+import loadApp from "../loaders";
 
 const debug = Debug('server:server')
 
@@ -86,7 +86,7 @@ const startServer = async () => {
   /**
   * Load application.
   */
-  // await loadApp({ app, server });
+  await loadApp({ app, server });
 
   /**
   * Listen on provided port, on all network interfaces.

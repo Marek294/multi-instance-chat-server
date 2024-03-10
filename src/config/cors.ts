@@ -1,10 +1,11 @@
-const cors = require('cors');
-const config = require('./vars');
-const { errors } = require('../utils/APIErrors');
+import cors from 'cors'
+import config from '../config/vars'
+import errors from '../utils/APIError'
+
 
 const corsOptions = {
   credentials: true,
-  origin: (origin, callback) => {
+  origin: (origin: string | null | undefined, callback: Function) => {
     if (config.corsWhitelist.indexOf(origin) !== -1 || !origin) {
       callback(null, true);
     } else {
@@ -13,4 +14,4 @@ const corsOptions = {
   },
 };
 
-module.exports = () => cors(corsOptions);
+export default () => cors(corsOptions);
