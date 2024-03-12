@@ -9,7 +9,7 @@ import config from '../config/vars'
 import ssl from '../config/ssl'
 import cors from '../config/cors'
 import error from '../api/middlewares/error'
-
+import apiRoutes from '../api/routes'
 
 const debug = Debug('server:loader:express')
 
@@ -56,7 +56,7 @@ export default ({ app }: { app: Express }) => {
   app.use(express.static(path.join(__dirname, '../../public')));
 
   // mount api routes
-  // app.use('/api', apiRoutes);
+  app.use('/api', apiRoutes);
 
   // log error if necessary
   app.use(error.log);

@@ -4,7 +4,7 @@ const minute = 60 * second;
 const hour = 60 * minute;
 const day = 24 * hour;
 
-module.exports = (amount, unit) => {
+export default (amount: number, unit: string) => {
   if (Number.isNaN(amount)) throw new Error(`${amount} is not a number`);
 
   switch (unit) {
