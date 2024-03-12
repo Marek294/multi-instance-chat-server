@@ -2,6 +2,8 @@ import Debug from "debug";
 import { Express } from "express";
 import { Server } from "http";
 import expressLoader from "./express";
+import config from '../config/vars'
+import jobsLoader from './jobs'
 import './events'
 
 const debug = Debug('server:loader')
@@ -18,10 +20,10 @@ const debug = Debug('server:loader')
 export default async ({ app, server }: { app: Express, server: Server }) => {
   debug('Events loaded');
 
-  // if (config.includeJobs) {
-  //   jobsLoader();
-  //   debug('Jobs loaded');
-  // }
+  if (config.includeJobs) {
+    jobsLoader();
+    debug('Jobs loaded');
+  }
 
   // websocketLoader(server);
   // debug('Websocket server loaded');

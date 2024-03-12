@@ -1,0 +1,90 @@
+const milisecond = 1;
+const second = 1000 * milisecond;
+const minute = 60 * second;
+const hour = 60 * minute;
+const day = 24 * hour;
+
+interface JobFunc {
+  ({ nextCall }: { nextCall: Function }): void;
+}
+
+class Job {
+  handler: Function
+  interval: number
+  timer: NodeJS.Timeout | null
+
+  constructor(handler: JobFunc) {
+    this.handler = handler;
+    this.interval = 0;
+    this.timer = null;
+  }
+
+  every(amount: number, unit: string) {
+    if (Number.isNaN(amount)) throw new Error(`${amount} is not a number`);
+
+    switch (unit) {
+      case 'miliseconds':
+      case 'milisecond':
+        this.interval = amount * milisecond;
+        return this;
+
+      case 'seconds':
+      case 'second':
+        this.interval = amount * second;
+        return this;
+
+      case 'minutes':
+      case 'minute':
+        this.interval = amount * minute;
+        return this;
+
+      case 'hours':
+      case 'hour':
+        this.interval = amount * hour;
+        return this;
+
+      case 'days':
+      case 'day':
+        this.interval = amount * day;
+        return this;
+
+      default:
+        throw new Error(`${unit} is unsupported unit of time`);
+    }
+  }
+
+  nextCall(interval: number) {
+    this.interval = interval
+    return this
+  }
+
+  run({ immediately = false } = {}) {
+    if (this.timer) return this.timer
+    if (!this.interval && this.interval !== 0) {
+      throw new Error('interval is not provided. Please use .every() or .nextCall() method before calling .run()')
+    }
+
+    const timeoutFunction = (interval: number) =>
+      setTimeout(async () => {
+        try {
+          await this.handler({ nextCall: (interval: number) => this.nextCall(interval) })
+        } catch (e) {
+          console.error(e)
+        }
+
+        // if timer is not stopped then repeat function
+        if (this.timer) this.timer = timeoutFunction(this.interval)
+      }, interval)
+
+    this.timer = timeoutFunction(immediately ? 0 : this.interval)
+  }
+
+  cancel() {
+    if (!this.timer) return;
+
+    clearTimeout(this.timer);
+    this.timer = null;
+  }
+}
+
+export default Job;
